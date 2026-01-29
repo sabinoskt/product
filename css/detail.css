@@ -1,0 +1,118 @@
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 10px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    margin-bottom: 20px;
+    padding: 10px;
+}
+
+.nav a {
+    text-transform: capitalize;
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+}
+
+.nav .titulo {
+    text-align: center;
+    text-transform: capitalize;
+}
+
+.back {
+    background: rgb(173, 216, 230);
+    color: rgb(255, 255, 255) !important;
+    padding: 5px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.container {
+    background: rgb(255, 255, 255);
+    padding: 20px;
+    max-width: 640px;
+    margin: 50px auto;
+}
+
+.form {
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.campo div {
+    margin-bottom: 20px;
+}
+
+.form label {
+    text-transform: capitalize;
+    font-weight: bold;
+}
+
+.form input {
+    padding: 5px;
+}
+
+.nome, .sobrenome, .email, .username {
+    display: flex;
+    width: 300px;
+}
+
+.nascimento {
+    display: flex;
+    width: 120px;
+}
+
+.erro-nome, .erro-idade, .erro-altura, .erro-peso {
+    font-size: 0.8em;
+    color: rgb(255, 165, 0);
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    text-align: left !important;
+}
+
+.checkbox p, .checkbox label {
+    text-transform: capitalize;
+    margin: 0;
+    font-weight: normal;
+}
+
+.check-active {
+    cursor: pointer;
+    width: auto !important;
+}
+
+.div-save {
+    text-align: center;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-save, .btn-save-continue {
+    color: rgb(255, 255, 255);
+    background: rgb(60, 179, 113);
+    text-transform: uppercase;
+    cursor: pointer;
+    font-weight: bold;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.dropdown {
+    text-align: start;
+    display: flex;
+    flex-direction: column;
+}
+
+select {
+    width: 150px;
+    outline: none;
+}

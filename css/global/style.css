@@ -1,0 +1,19 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: rgb(12, 16, 20);
+    font-family: sans-serif;
+}
+
+footer {
+    color: rgb(255, 255, 255);
+    /* background: rgba(255, 255, 255, 0.05); */
+    padding: 20px;
+    text-align: center;
+    /* border-top: 1px solid rgba(255, 255, 255, 0.1); */
+    margin-top: 50px;
+    /* margin-left: 260px; */
+}

@@ -1,0 +1,175 @@
+:root {
+    --branca: rgb(255, 255, 255);
+}
+
+.sidebar {
+    position: fixed;
+    padding: 20px;
+    width: 260px;
+    height: 100vh;
+    border-right: 1px solid rgba(255, 255, 255, 0.10);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.div-first nav button {
+    font-size: 25px;
+}
+
+
+/* .sidebar > div:first-child {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+} */
+
+nav {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+nav button {
+    color: var(--branca);
+    text-align: left;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    background: none;
+}
+
+nav button:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.welcome {
+    color: var(--branca);
+}
+
+.username {
+    color: rgb(255, 255, 255);
+    font-size: 25px;
+    font-weight: bold;
+    text-align: center;
+}
+
+caption {
+    font-size: 30px;
+    font-weight: bold;
+    text-transform: capitalize;
+    margin-bottom: 20px;
+}
+
+.content {
+    min-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-left: 260px;
+}
+
+caption,
+.table {
+    width: 100vh;
+    background: var(--branca);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+td,
+th {
+    border: 1px solid #999;
+    padding: 0.5rem;
+}
+
+tr:nth-child(odd) {
+    background: #eee;
+}
+
+.acoes {
+    text-align: center;
+}
+
+.acoes button {
+    margin: 0 2px;
+    border: none;
+    cursor: pointer;
+}
+
+.editar {
+    text-transform: capitalize;
+    padding: 5px;
+    color: rgb(255, 255, 255);
+    background: rgb(173, 216, 230);
+    border-radius: 5px;
+}
+
+.excluir {
+    text-transform: capitalize;
+    padding: 5px;
+    color: rgb(255, 255, 255);
+    background: rgb(255, 127, 127);
+    border-radius: 5px;
+}
+
+.content-dropdwon {
+    width: 460px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--branca);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.dropdown {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5px;
+}
+
+select {
+    padding: 5px;
+    border-radius: 8px;
+    border: 1px solid #999;
+}
+
+select:focus {
+    outline: none;
+}
+
+.btn-salvar {
+    color: var(--branca);
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background: rgb(12, 16, 20);
+    padding: 8px;
+}
+
+.popup {
+    margin: 50px;
+}
+
+.users-error, .role-error {
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+}
+
+.users-error, .role-error h1 {
+    color: rgb(255, 0, 0);
+}
+
+.link-name {
+    text-decoration: none;
+    color: rgb(0, 0, 255);
+}
