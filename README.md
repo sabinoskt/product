@@ -47,7 +47,7 @@ projeto/
 ├── login.html
 ├── register.html
 └── README.md
-
+```
 
 Tecnologias Utilizadas
 
