@@ -45,8 +45,8 @@ class Users:
                                       r.id   as role_id,
                                       r.name as role_name
                                FROM users AS u
-                                        INNER JOIN users_role ur ON u.id = ur.users_id
-                                        INNER JOIN role r ON r.id = ur.role_id; \
+                                        LEFT JOIN users_role ur ON u.id = ur.users_id
+                                        LEFT JOIN role r ON r.id = ur.role_id;
                                """
 
             # query = """
@@ -61,9 +61,13 @@ class Users:
         except mysql.connector.Error as err:
             print(f"Erro ao conectar ou executar: {err}")
             return None
+        
         finally:
-            if not self.conexao:
-                self.conexao.desconectar()
+            if cursor:
+                cursor.close()
+
+            if self.conn:
+                self.conn.close()
 
     def create(self, name, surname, birth, email, username, password):
         cursor = None
@@ -79,10 +83,14 @@ class Users:
             cursor.execute(query, values)
             self.conn.commit()
             cursor.close()
+            return True
 
         except mysql.connector.Error as err:
             print(f"Erro ao conectar ou executar: {err}")
-            return None
+            
+            if err.errno == 1062:
+                return False, "E-mail já cadastrado"
+            return False, str(err)
         finally:
             if not self.conexao:
                 self.conexao.desconectar()
@@ -225,7 +233,7 @@ class Users:
             if not self.conexao:
                 self.conexao.desconectar()
 
-    def update_users(self, data, id):
+    def update_user(self, data, id):
         cursor = None
         query = """
                 update users
@@ -266,3 +274,27 @@ class Users:
 
             if self.conexao:
                 self.conexao.desconectar()
+                
+    def delete_user(self, id):
+        cursor = None
+        query = "delete from users where id= %s"
+        values = (id,)
+                
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(query, values)
+            self.conn.commit()
+            cursor.close()
+            return True
+        
+        except mysql.connector.Error as err:
+            print(f"Erro ao executar ou conectar: {err}")
+            raise
+        
+        finally:
+            if cursor:
+                cursor.close()
+
+            if self.conexao:
+                self.conexao.desconectar()
+                

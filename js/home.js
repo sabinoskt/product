@@ -11,7 +11,7 @@ function ListaUsers() {
 
     const username = async () => {
         const userStorage = JSON.parse(localStorage.getItem("user"));
-    
+
         if (!userStorage.id) return;
 
         const users = await userService.getAll();
@@ -153,6 +153,10 @@ function ListaUsers() {
                 excluir.classList = "excluir";
                 excluir.innerText = "excluir";
 
+                excluir.addEventListener("click", async () => {
+                    if (await userService.delete(dados.id)) this.listar();
+                });
+
                 tdAcoes.append(editar, excluir);
 
                 tr.append(tdAcoes);
@@ -161,27 +165,6 @@ function ListaUsers() {
             main.appendChild(table);
         });
     }
-
-    // document.addEventListener("click", async e => {
-    //     const el = e.target;
-    //     if (!el.classList.contains("btn-excluir")) return;
-
-    //     const li = el.closest("li");
-    //     const indice = Array.from(ul.children).indexOf(li);
-
-    //     const pessoas = await get_users();
-    //     const pessoas_ativas = pessoas.filter(p => p.ativo);
-    //     const pessoa = pessoas_ativas[indice];
-
-    //     const id = pessoa.id;
-
-    //     if (await del_pessoa(id)) {
-    //         console.log("Deletada com sucesso");
-    //     }
-
-    //     this.listar();
-    // });
-
 
     const btnSair = document.querySelector(".sair");
 

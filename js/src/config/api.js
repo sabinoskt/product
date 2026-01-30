@@ -5,7 +5,7 @@ export const API_ENDPOINTS = {
     login: "/login_user",
     createUser: "/create_user",
     updateUser: "/updateUser",
-    deleteUser: "/delete_pessoa",
+    deleteUser: "/delete_user",
     updateSenha: "/update_senha",
     getRole: "/get_role",
     getUsersRole: "/get_users_role",

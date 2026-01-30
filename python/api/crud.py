@@ -77,32 +77,49 @@ def serialize_user(rows):
     ]
 
 
-@router.get("/read_users")
+@router.get("/read_users", tags=["usuários"])
 def read_users():
     usuarios = Usuarios()
     usuarios = usuarios.get_all()
+
     if not usuarios:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
     return serialize_user(usuarios)
 
 
-@router.post("/create_user")
-def create_user(user: Create, user_logado=Depends(validar_token)):
+@router.post("/create_user", tags=["usuários"])
+def create_user(user: Create):
     password = ph.hash(user.password)
     usuario = Usuarios()
-    usuario.create(
-        user.first_name,
-        user.last_name,
-        user.date_of_birth,
-        user.email,
-        user.username,
-        password,
-    )
-    return Response(status_code=status.HTTP_201_CREATED)
+
+    try:
+        success, result = usuario.create(
+            user.first_name,
+            user.last_name,
+            user.date_of_birth,
+            user.email,
+            user.username,
+            password,
+        )
+
+        if not success:
+            if "já cadastrado" in result:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=result)
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=result
+                )
+
+        return Response(status_code=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        )
 
 
-@router.post("/login_user")
+@router.post("/login_user", tags=["usuários"])
 def login(data: Login, response: Response):
     get_user = Usuarios()
     user = get_user.login(data.username)
@@ -145,8 +162,8 @@ def login(data: Login, response: Response):
         )
 
 
-@router.put("/update_senha/{id}")
-def alterar_senha(id: int, data: UpdatePassword, user_logado=Depends(validar_token)):
+@router.put("/update_senha/{id}", tags=["usuários"])
+def update_password(id: int, data: UpdatePassword, user_logado=Depends(validar_token)):
     get_user = Usuarios()
     user = get_user.get_user_by_id(id)
 
@@ -183,7 +200,7 @@ def alterar_senha(id: int, data: UpdatePassword, user_logado=Depends(validar_tok
         )
 
 
-@router.get("/get_role")
+@router.get("/get_role", tags=["usuários"])
 def get_role():
     role = Usuarios()
     if not role:
@@ -191,7 +208,7 @@ def get_role():
     return role.get_role_all()
 
 
-@router.get("/get_users_role")
+@router.get("/get_users_role", tags=["usuários"])
 def get_users_role():
     users_role = Usuarios()
     if not users_role:
@@ -199,7 +216,7 @@ def get_users_role():
     return users_role.users_role_all()
 
 
-@router.post("/createUsersRole")
+@router.post("/createUsersRole", tags=["usuários"])
 def create_users_role(urr: CreateUsersRole, user_logado=Depends(validar_token)):
     usersrole = Usuarios()
     try:
@@ -211,9 +228,9 @@ def create_users_role(urr: CreateUsersRole, user_logado=Depends(validar_token)):
         )
 
 
-@router.put("/updateUsersRole/{id}")
+@router.put("/updateUsersRole/{id}", tags=["usuários"])
 def update_users_role(
-        id: int, urr: CreateUsersRole, user_logado=Depends(validar_token)
+    id: int, urr: CreateUsersRole, user_logado=Depends(validar_token)
 ):
     usersrole = Usuarios()
     user = Usuarios().get_user_by_id(id)
@@ -241,7 +258,7 @@ def update_users_role(
         )
 
 
-@router.put("/updateUser/{id}")
+@router.put("/updateUser/{id}", tags=["usuários"])
 def update_user(id: int, data: Update, user_logado=Depends(validar_token)):
     user = Usuarios()
     user_by_id = user.get_user_by_id(id)
@@ -253,7 +270,7 @@ def update_user(id: int, data: Update, user_logado=Depends(validar_token)):
         )
 
     try:
-        user.update_users(data, id)
+        user.update_user(data, id)
         return HTTPException(status_code=status.HTTP_200_OK)
     except Exception as e:
         raise HTTPException(
@@ -261,13 +278,23 @@ def update_user(id: int, data: Update, user_logado=Depends(validar_token)):
             detail=f"Erro ao atualizar: {str(e)}",
         )
 
-# @router.delete("/delete_user/{index}")
-# def delete_user(index: int):
-#     users = is_active(dados_users)
-#     for u in users:
-#         if u.id == index:
-#             dados_users.remove(u)
-#             info(f"{is_success(True)} - deletado com sucesso")
-#             return Response(status_code=status.HTTP_204_NO_CONTENT)
-#     info(f"{is_success(False)} - Error ao deletar")
-#     raise HTTPException(status_code=404, detail="index nao encontrada")
+
+@router.delete("/delete_user/{id}", tags=["usuários"])
+def delete_user(id: int, user_logado=Depends(validar_token)):
+    user = Usuarios()
+    user_by_id = user.get_user_by_id(id)
+
+    if user_by_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ID não encontrada ou ID não existe",
+        )
+
+    try:
+        user.delete_user(id)
+        return HTTPException(status_code=status.HTTP_200_OK)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro ao atualizar: {str(e)}",
+        )

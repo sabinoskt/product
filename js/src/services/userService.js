@@ -10,7 +10,9 @@ const userService = {
             const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.createUser}`,
                 {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                     body: JSON.stringify(userData)
                 }
             );
@@ -22,9 +24,9 @@ const userService = {
 
             return { success: true };
 
-        } catch (erro) {
-            console.log("Erro ao criar:", erro);
-            return null;
+        } catch (error) {
+            if (error instanceof TypeError) throw new Error(error.message);
+            throw error;
         }
     },
 
@@ -55,11 +57,15 @@ const userService = {
     },
 
     delete: async (id) => {
+        const token = userService.getToken();
         try {
             const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.deleteUser}/${id}`,
                 {
                     method: "DELETE",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
                 }
             );
 
@@ -67,7 +73,7 @@ const userService = {
                 throw new Error(`Erro HTTP: ${response.status}`);
             }
 
-            return { success: true };
+            return true;
 
         } catch (error) {
             if (error instanceof TypeError) throw new Error(error.message);
@@ -107,11 +113,15 @@ const userService = {
     },
 
     updatePassword: async (currentPassword, newPassword, id) => {
+        const token = userService.getToken();
         try {
             const response = await this.request(`/update_senha/${id}`,
                 {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
                     body: JSON.stringify({ currentPassword, newPassword })
                 }
             );
@@ -141,8 +151,7 @@ const userService = {
             );
 
             if (response.status === 401) {
-                console.log("Usuário nao autorizado");
-                localStorage.removeItem("token");
+                localStorage.clear();
                 window.location.href = "/login.html";
                 return [];
             }

@@ -58,6 +58,16 @@ class Validation {
         return true
     }
 
+    anoFormatado(nasc) {
+        const anoAtual = new Date().getFullYear();
+        const ano = nasc.split('-')[0]
+
+        return {
+            anoAtual: anoAtual,
+            ano: ano
+        };
+    }
+
     validarRegister(data, psswdAgain) {
         this.errorClear();
 
@@ -72,7 +82,7 @@ class Validation {
         const password = !data.password.trim() ? "" : data.password.trim();
         const passwordAgain = !psswdAgain.trim() ? "" : psswdAgain.trim();
 
-        const dateNasc = new Date(nascimento);
+        const anoFormatado = this.anoFormatado(nascimento);
 
         if (!nome && !sobrenome && !nascimento && !email && !userName && !password && !passwordAgain) {
             error.erroNome.innerText = message.field;
@@ -97,7 +107,7 @@ class Validation {
 
         if (!this.validarCampo(nascimento, error.erroDate, [
             { condicao: (v) => v !== "", message: message.field },
-            { condicao: () => dateNasc <= new Date(), message: message.date }
+            { condicao: () => anoFormatado.ano <= anoFormatado.anoAtual, message: message.date }
         ])) return false;
 
         if (!this.validarCampo(email, error.erroEmail, [
@@ -145,7 +155,7 @@ class Validation {
 
     validDetail(data) {
         const message = this.messageError();
-        const dateNasc = new Date(data.date_of_birth);
+        const anoFormatado = this.anoFormatado(data.date_of_birth);
 
         if (!this.validarCampo(data.first_name, null, [
             { condicao: (v) => v !== "", message: message.field },
@@ -159,7 +169,7 @@ class Validation {
 
         if (!this.validarCampo(data.date_of_birth, null, [
             { condicao: (v) => v !== "", message: message.field },
-            { condicao: () => dateNasc <= new Date(), message: message.date }
+            { condicao: () => anoFormatado.ano <= anoFormatado.anoAtual, message: message.date, message: message.date }
         ])) return false;
 
         if (!this.validarCampo(data.email, null, [

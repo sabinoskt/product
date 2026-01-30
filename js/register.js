@@ -20,19 +20,12 @@ function Register() {
 
     const btnCreate = selector(".btn-create");
 
-    const dataFormatada = () => {
-        const dataString = inputNascimento.value;
-        const data = new Date(dataString);
-        return data.toLocaleDateString("pt-BR");
-    }
-
     const data = () => {
-        const date = dataFormatada()
         const user = {
             active: true,
             first_name: inputNome.value,
             last_name: inputSobrenome.value,
-            date_of_birth: date,
+            date_of_birth: inputNascimento.value,
             email: inputEmail.value,
             username: inputUser.value,
             password: inputPassword.value,
