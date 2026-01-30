@@ -75,11 +75,11 @@ Boas Práticas Aplicadas
 - Versionamento com Git desde o início do projeto
 
 Status do Projeto
-Em desenvolvimento ativo
-Novas funcionalidades serão adicionadas conforme a evolução dos estudos.
-Em desenvolvimento ativo (projeto de estudo e prática contínua).
+- Em desenvolvimento ativo
+- Novas funcionalidades serão adicionadas conforme a evolução dos estudos.
+- Em desenvolvimento ativo (projeto de estudo e prática contínua).
 
 Autor
-Gabriel Wilson
-Desenvolvedor Full Stack em formação
-Projeto voltado para prática real, aprendizado contínuo e evolução profissional
+- Gabriel Wilson
+- Desenvolvedor Full Stack em formação
+- Projeto voltado para prática real, aprendizado contínuo e evolução profissional
