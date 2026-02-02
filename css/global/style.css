@@ -4,6 +4,10 @@
 }
 
 body {
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    margin: 0;
     background: rgb(12, 16, 20);
     font-family: sans-serif;
 }

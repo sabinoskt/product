@@ -17,15 +17,15 @@ const userService = {
                 }
             );
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`Erro HTTP: ${response.status}: ${JSON.stringify(errorData)}`);
+           if (!response.ok) {
+                const erro = await response.json();
+                throw new Error(erro.detail);
             }
 
             return { success: true };
 
         } catch (error) {
-            if (error instanceof TypeError) throw new Error(error.message);
+            if (error instanceof TypeError) throw new Error("Servidor fora do ar");
             throw error;
         }
     },

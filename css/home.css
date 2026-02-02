@@ -3,6 +3,7 @@
 }
 
 .sidebar {
+    left: 0;
     position: fixed;
     padding: 20px;
     width: 260px;
@@ -70,7 +71,6 @@ caption {
     min-height: 50vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     margin-left: 260px;
 }

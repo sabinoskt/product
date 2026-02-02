@@ -4,32 +4,29 @@
 }
 
 .content {
+    padding: 20px;
+    width: 50vh;
+    background: var(--branca);
     gap: 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: calc(100vh - 200px);
+    border-radius: 10px;
 }
 
 .content-h1-span {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius: 10px;
-    padding: 10px;
-    background: var(--branca);
 }
 
 .form {
     width: 350px;
-    padding: 20px;
     gap: 10px;
-    background: var(--branca);
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border-radius: 10px;
 }
 
 input {

@@ -10,6 +10,8 @@ function Register() {
         return document.querySelector(query);
     }
 
+    const span = document.createElement("span");
+
     const inputNome = selector(".nome");
     const inputSobrenome = selector(".sobrenome");
     const inputNascimento = selector(".nascimento");
@@ -17,6 +19,7 @@ function Register() {
     const inputUser = selector(".user");
     const inputPassword = selector(".password");
     const inputPasswordAgain = selector(".password-again");
+    const div = selector(".container-title");
 
     const btnCreate = selector(".btn-create");
 
@@ -40,14 +43,22 @@ function Register() {
         btnCreate.addEventListener("click", async event => {
             event.preventDefault();
 
+            span.innerText = "";
+
             const passwordAgain = inputPasswordAgain.value;
             const user = data();
 
             const register = new Validation()
 
             if (register.validarRegister(user, passwordAgain)) {
-                await userService.create(user);
-                window.location.href = "login.html";
+                try {
+                    await userService.create(user);
+                    window.location.href = "login.html";
+                } catch (error) {
+                    span.style.color = "red";
+                    span.innerText = error.message;
+                    div.appendChild(span);
+                }
             }
         });
     }

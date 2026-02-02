@@ -1,46 +1,38 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
     <link rel="stylesheet" href="../css/global/style.css">
     <link rel="stylesheet" href="../css/register.css">
 </head>
+
 <body>
-    <h1 class="titulo">cadastre-se aqui</h1>
-
     <section class="container">
-        <form action="" class="form">
-            <div class="div-input">
-                <input type="text" placeholder="nome" class="nome">
-                <span class="erro-nome"></span>
-            </div>
-            <div class="div-input">
-                <input type="text" placeholder="sobrenome" class="sobrenome">
-                <span class="erro-sobrenome"></span>
-            </div>
-            <div class="div-input">
-                <input type="date" placeholder="Data de nascimento" class="nascimento">
-                <span class="erro-data"></span>
-            </div>
-            <div class="div-input">
-                <input type="text" placeholder="e-mail" class="e-mail">
-                <span class="erro-email"></span>
-            </div>
-            <div class="div-input">
-                <input type="text" placeholder="user" class="user">
-                <span class="erro-user"></span>
-            </div>
-            <div class="div-input">
-                <input type="password" placeholder="password" class="password">
-                <span class="erro-password"></span>
-            </div>
-            <div class="div-input">
-                <input type="password" placeholder="password again" class="password-again">
-                <span class="erro-password-again"></span>
-            </div>
-
-            <button class="btn btn-create">create</button>
+        <div class="div-cadastro">
+            <a href="./login.html">
+                 <img src="./img/botao-voltar.png" alt="voltar">
+            </a>
+            <h1>Cadastre-se aqui</h1>
+        </div>
+        
+        <form class="form">
+            <input type="text" placeholder="Nome" class="nome">
+            <span class="erro-nome"></span>
+            <input type="text" placeholder="Sobrenome" class="sobrenome">
+            <span class="erro-sobrenome"></span>
+            <input type="date" class="nascimento">
+            <span class="erro-data"></span>
+            <input type="text" placeholder="E-mail" class="e-mail">
+            <span class="erro-email"></span>
+            <input type="text" placeholder="Usuário" class="user">
+            <span class="erro-user"></span>
+            <input type="password" placeholder="Senha" class="password">
+            <span class="erro-password"></span>
+            <input type="password" placeholder="Senha novamente" class="password-again">
+            <span class="erro-password-again"></span>
+            <button class="btn btn-create">Enviar</button>
         </form>
     </section>
 
@@ -49,4 +41,5 @@
     <script src="../js/include.js"></script> -->
     <script type="module" src="../js/register.js"></script>
 </body>
+
 </html>

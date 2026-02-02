@@ -1,10 +1,11 @@
 from pydantic import BaseModel
+from datetime import date
 
 
 class Create(BaseModel):
     first_name: str
     last_name: str
-    date_of_birth: str
+    date_of_birth: date
     email: str
     username: str
     password: str
@@ -13,7 +14,7 @@ class Create(BaseModel):
 class Update(BaseModel):
     first_name: str
     last_name: str
-    date_of_birth: str
+    date_of_birth: date
     email: str
     username: str
     active: bool

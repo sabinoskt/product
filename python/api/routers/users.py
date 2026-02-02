@@ -1,63 +1,18 @@
 from argon2.exceptions import VerifyMismatchError, InvalidHash
-from fastapi import APIRouter, FastAPI, status, HTTPException, Response
-
+from infrastructure.security.password_hasher import Hasher
+from fastapi import APIRouter, status, HTTPException
 from fastapi.params import Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import jwt
 from fastapi.responses import Response
-
 # from logs.info import info
-from database_mysql.crud import Users as Usuarios
-from argon2 import PasswordHasher
+from infrastructure.database.mysql.users_repository import Users as Usuarios
+from api.schemas.users import Create, Update, Login, UpdatePassword, CreateUsersRole
+from infrastructure.security.jwt_service import validar_token, criar_token
 
-from datetime import datetime, timezone, timedelta
-from api.schemas import Create, Login, UpdatePassword, CreateUsersRole, Update
-
-app = FastAPI()
-router = APIRouter()
-
-ph = PasswordHasher(time_cost=3, memory_cost=65536, parallelism=4)
+users_router = APIRouter()
 
 
 def is_success(is_true: bool) -> str:
     return "(SUCESSO)" if is_true else "(SEM SUCESSO)"
-
-
-SECRET_KEY = "sua_chave_secreta_super_segura"
-
-security = HTTPBearer()
-
-
-def criar_token(user_id, username):
-    now = datetime.now(timezone.utc)
-    payload = {
-        "user_id": user_id,
-        "username": username,
-        "iat": now,
-        "exp": now + timedelta(hours=1),
-    }
-    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-    return token
-
-
-def validar_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    token = credentials.credentials
-
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        return payload
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token expirado",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    except jwt.InvalidTokenError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
 
 
 def serialize_user(rows):
@@ -77,7 +32,11 @@ def serialize_user(rows):
     ]
 
 
-@router.get("/read_users", tags=["usuários"])
+def serialize_exists(rows):
+    return [{"email": row["email"], "username": row["username"]} for row in rows]
+
+
+@users_router.get("/read_users", tags=["usuários"])
 def read_users():
     usuarios = Usuarios()
     usuarios = usuarios.get_all()
@@ -88,13 +47,25 @@ def read_users():
     return serialize_user(usuarios)
 
 
-@router.post("/create_user", tags=["usuários"])
+@users_router.post("/create_user", tags=["usuários"])
 def create_user(user: Create):
-    password = ph.hash(user.password)
-    usuario = Usuarios()
+    ph = Hasher()
+    password = ph.senha_crypto(user.password)
+    usuarios = Usuarios()
+    email = Usuarios().get_email(user.email)
+    username = Usuarios().get_username(user.username)
 
     try:
-        success, result = usuario.create(
+        if email:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="E-mail já cadastrado"
+            )
+        if username:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="Usuário já existe"
+            )
+
+        usuarios.create(
             user.first_name,
             user.last_name,
             user.date_of_birth,
@@ -103,23 +74,17 @@ def create_user(user: Create):
             password,
         )
 
-        if not success:
-            if "já cadastrado" in result:
-                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=result)
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=result
-                )
-
         return Response(status_code=status.HTTP_201_CREATED)
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
-@router.post("/login_user", tags=["usuários"])
+@users_router.post("/login_user", tags=["usuários"])
 def login(data: Login, response: Response):
     get_user = Usuarios()
     user = get_user.login(data.username)
@@ -133,7 +98,8 @@ def login(data: Login, response: Response):
         username_correto = user["username"] == data.username
 
         try:
-            senha_correta = ph.verify(user["password"], data.password)
+            ph = Hasher()
+            senha_correta = ph.verificar_senha(user["password"], data.password)
         except (VerifyMismatchError, InvalidHash):
             senha_correta = False
 
@@ -162,10 +128,11 @@ def login(data: Login, response: Response):
         )
 
 
-@router.put("/update_senha/{id}", tags=["usuários"])
+@users_router.put("/update_senha/{id}", tags=["usuários"])
 def update_password(id: int, data: UpdatePassword, user_logado=Depends(validar_token)):
     get_user = Usuarios()
     user = get_user.get_user_by_id(id)
+    ph = Hasher()
 
     if user is None:
         raise HTTPException(
@@ -174,7 +141,7 @@ def update_password(id: int, data: UpdatePassword, user_logado=Depends(validar_t
 
     try:
         try:
-            senha_correta = ph.verify(user["password"], data.current_password)
+            senha_correta = ph.verificar_senha(user["password"], data.current_password)
         except (VerifyMismatchError, InvalidHash):
             senha_correta = False
 
@@ -183,7 +150,7 @@ def update_password(id: int, data: UpdatePassword, user_logado=Depends(validar_t
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Senha atual incorreta"
             )
 
-        if get_user.alterar_senha(ph.hash(data.new_password), id):
+        if get_user.update_senha(ph.senha_crypto(data.new_password), id):
             return Response(status_code=status.HTTP_200_OK)
         else:
             raise HTTPException(
@@ -200,7 +167,7 @@ def update_password(id: int, data: UpdatePassword, user_logado=Depends(validar_t
         )
 
 
-@router.get("/get_role", tags=["usuários"])
+@users_router.get("/get_role", tags=["usuários"])
 def get_role():
     role = Usuarios()
     if not role:
@@ -208,7 +175,7 @@ def get_role():
     return role.get_role_all()
 
 
-@router.get("/get_users_role", tags=["usuários"])
+@users_router.get("/get_users_role", tags=["usuários"])
 def get_users_role():
     users_role = Usuarios()
     if not users_role:
@@ -216,21 +183,21 @@ def get_users_role():
     return users_role.users_role_all()
 
 
-@router.post("/createUsersRole", tags=["usuários"])
+@users_router.post("/createUsersRole", tags=["usuários"])
 def create_users_role(urr: CreateUsersRole, user_logado=Depends(validar_token)):
     usersrole = Usuarios()
     try:
         usersrole.create_users_role(urr.role_id, urr.user_id)
-        return HTTPException(status_code=status.HTTP_201_CREATED)
+        return Response(status_code=status.HTTP_201_CREATED)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Erro ao criar: {str(e)}"
         )
 
 
-@router.put("/updateUsersRole/{id}", tags=["usuários"])
+@users_router.put("/updateUsersRole/{id}", tags=["usuários"])
 def update_users_role(
-    id: int, urr: CreateUsersRole, user_logado=Depends(validar_token)
+        id: int, urr: CreateUsersRole, user_logado=Depends(validar_token)
 ):
     usersrole = Usuarios()
     user = Usuarios().get_user_by_id(id)
@@ -250,28 +217,29 @@ def update_users_role(
 
     try:
         usersrole.update_users_role(urr.role_id, id)
-        return HTTPException(status_code=status.HTTP_200_OK)
+        return Response(status_code=status.HTTP_200_OK)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
+
             detail=f"Erro ao atualizar: {str(e)}",
         )
 
 
-@router.put("/updateUser/{id}", tags=["usuários"])
+@users_router.put("/updateUser/{id}", tags=["usuários"])
 def update_user(id: int, data: Update, user_logado=Depends(validar_token)):
-    user = Usuarios()
-    user_by_id = user.get_user_by_id(id)
+    usuarios = Usuarios()
+    usuario_data = usuarios.get_user_by_id(id)
 
-    if user_by_id is None:
+    if usuario_data is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Usuário não existe ou ID usuário não existe",
         )
 
     try:
-        user.update_user(data, id)
-        return HTTPException(status_code=status.HTTP_200_OK)
+        usuarios.update_user(data, id)
+        return Response(status_code=status.HTTP_200_OK)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -279,20 +247,20 @@ def update_user(id: int, data: Update, user_logado=Depends(validar_token)):
         )
 
 
-@router.delete("/delete_user/{id}", tags=["usuários"])
+@users_router.delete("/delete_user/{id}", tags=["usuários"])
 def delete_user(id: int, user_logado=Depends(validar_token)):
-    user = Usuarios()
-    user_by_id = user.get_user_by_id(id)
+    usuarios = Usuarios()
+    usuario_data = usuarios.get_user_by_id(id)
 
-    if user_by_id is None:
+    if usuario_data is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="ID não encontrada ou ID não existe",
         )
 
     try:
-        user.delete_user(id)
-        return HTTPException(status_code=status.HTTP_200_OK)
+        usuarios.delete_user(id)
+        return Response(status_code=status.HTTP_200_OK)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

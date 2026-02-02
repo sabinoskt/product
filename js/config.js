@@ -1,5 +1,5 @@
 import userService from "../js/src/services/userService.js";
-import { validConfig } from "./validar_inputs.js";
+import Validation from "./validar_inputs.js";
 
 function SistemaConfig() {
     this.inicia = () => {
@@ -23,14 +23,13 @@ function SistemaConfig() {
         main.className = "content";
         document.body.appendChild(main);
 
-        const footer = document.querySelector('[data-include="global/footer.html"]');
+        const aside = document.querySelector(".sidebar");
 
-        if (footer) {
-            document.body.insertBefore(main, footer);
+        if (aside) {
+            document.body.insertBefore(aside, main);
         } else {
             document.body.appendChild(main);
         }
-
 
         const statusResult = (statusCode, type, color) => {
             let divToastBox = document.querySelector(".toastbox");
@@ -52,7 +51,7 @@ function SistemaConfig() {
             setTimeout(() => {
                 toast.remove();
                 if (divToastBox.children.length === 0) divToastBox.remove();
-            }, 6000);
+            }, 3000);
         }
 
         const bloco = (classe, texto) => {
@@ -140,7 +139,9 @@ function SistemaConfig() {
             clickAlterarSenha.addEventListener("click", async e => {
                 e.preventDefault();
 
-                if (validConfig(senhaAtual.value, novaSenha.value, redigiteNovaSenha.value)) {
+                const valid = new Validation();
+
+                if (valid.validConfig(senhaAtual.value, novaSenha.value, redigiteNovaSenha.value)) {
                     try {
                         const result = await userService.updatePassword(senhaAtual.value, novaSenha.value, id);
 

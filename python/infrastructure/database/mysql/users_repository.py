@@ -1,4 +1,4 @@
-from database_mysql.config import MySQL
+from infrastructure.database.mysql.config import MySQL
 import mysql.connector
 
 
@@ -22,9 +22,10 @@ class Users:
         except mysql.connector.Error as err:
             print(f"Erro ao buscar usuario: {err}")
             return None
+
         finally:
-            if not self.conexao:
-                self.conexao.desconectar()
+            if cursor:
+                cursor.close()
 
     def get_all(self):
         cursor = None
@@ -61,20 +62,17 @@ class Users:
         except mysql.connector.Error as err:
             print(f"Erro ao conectar ou executar: {err}")
             return None
-        
+
         finally:
             if cursor:
                 cursor.close()
-
-            if self.conn:
-                self.conn.close()
 
     def create(self, name, surname, birth, email, username, password):
         cursor = None
         query = """
                 insert into users
                     (first_name, last_name, date_of_birth, email, username, password)
-                values (%s, %s, %s, %s, %s, %s) \
+                values (%s, %s, %s, %s, %s, %s)
                 """
         values = (name, surname, birth, email, username, password)
 
@@ -87,13 +85,14 @@ class Users:
 
         except mysql.connector.Error as err:
             print(f"Erro ao conectar ou executar: {err}")
-            
-            if err.errno == 1062:
-                return False, "E-mail já cadastrado"
-            return False, str(err)
+            if self.conn:
+                self.conn.rollback()
+            return err
+
         finally:
-            if not self.conexao:
-                self.conexao.desconectar()
+            if cursor:
+                cursor.close()
+
 
     def login(self, username):
         cursor = None
@@ -109,9 +108,10 @@ class Users:
         except mysql.connector.Error as err:
             print(f"Erro ao conectar ou executar: {err}")
             return None
+
         finally:
-            if not self.conexao:
-                self.conexao.desconectar()
+            if cursor:
+                cursor.close()
 
     def update_senha(self, new_password, id):
         cursor = None
@@ -129,9 +129,10 @@ class Users:
         except mysql.connector.Error as err:
             print(f"Erro ao conectar ou executar: {err}")
             return None
+
         finally:
-            if not self.conexao:
-                self.conexao.desconectar()
+            if cursor:
+                cursor.close()
 
     def get_role_all(self):
         cursor = None
@@ -146,9 +147,10 @@ class Users:
         except mysql.connector.Error as err:
             print(f"Erro ao conectar ou executar: {err}")
             return None
+
         finally:
-            if not self.conexao:
-                self.conexao.desconectar()
+            if cursor:
+                cursor.close()
 
     def users_role_all(self):
         cursor = None
@@ -162,9 +164,10 @@ class Users:
         except mysql.connector.Error as err:
             print(f"Erro ao conectar ou executar: {err}")
             return None
+
         finally:
-            if not self.conexao:
-                self.conexao.desconectar()
+            if cursor:
+                cursor.close()
 
     def create_users_role(self, user_id, role_id):
         cursor = None
@@ -183,9 +186,10 @@ class Users:
         except mysql.connector.Error as err:
             print(f"Erro ao conectar ou executar: {err}")
             return None
+
         finally:
-            if not self.conexao:
-                self.conexao.desconectar()
+            if cursor:
+                cursor.close()
 
     def update_users_role(self, role_id, user_id):
         cursor = None
@@ -205,9 +209,10 @@ class Users:
         except mysql.connector.Error as err:
             print(f"Erro ao conectar ou executar: {err}")
             return None
+
         finally:
-            if not self.conexao:
-                self.conexao.desconectar()
+            if cursor:
+                cursor.close()
 
     def get_role_by_id(self, id):
         cursor = None
@@ -229,9 +234,10 @@ class Users:
         except mysql.connector.Error as err:
             print(f"Erro ao executar ou conectar: {err}")
             return None
+
         finally:
-            if not self.conexao:
-                self.conexao.desconectar()
+            if cursor:
+                cursor.close()
 
     def update_user(self, data, id):
         cursor = None
@@ -272,29 +278,59 @@ class Users:
             if cursor:
                 cursor.close()
 
-            if self.conexao:
-                self.conexao.desconectar()
-                
     def delete_user(self, id):
         cursor = None
         query = "delete from users where id= %s"
         values = (id,)
-                
+
         try:
             cursor = self.conn.cursor()
             cursor.execute(query, values)
             self.conn.commit()
             cursor.close()
             return True
-        
+
         except mysql.connector.Error as err:
             print(f"Erro ao executar ou conectar: {err}")
             raise
-        
+
         finally:
             if cursor:
                 cursor.close()
 
-            if self.conexao:
-                self.conexao.desconectar()
-                
+
+    def get_email(self, email):
+        cursor = None
+        try:
+            cursor = self.conn.cursor()
+            query = "select email from users where email = %s"
+            cursor.execute(query, (email,))
+            _email = cursor.fetchone()
+            cursor.close()
+            return _email
+
+        except mysql.connector.Error as err:
+            print(f"Erro ao executar ou conectar: {err}")
+            raise
+
+        finally:
+            if cursor:
+                cursor.close()
+
+    def get_username(self,username):
+        cursor = None
+        try:
+            cursor = self.conn.cursor()
+            query = "select username from users where username = %s"
+            cursor.execute(query, (username,))
+            _username = cursor.fetchone()
+            cursor.close()
+            return _username
+
+        except mysql.connector.Error as err:
+            print(f"Erro ao executar ou conectar: {err}")
+            raise
+
+        finally:
+            if cursor:
+                cursor.close()
